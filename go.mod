@@ -1,4 +1,4 @@
-module gobw
+module github.com/sapslaj/gobw
 
 go 1.20
 
