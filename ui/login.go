@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -25,7 +24,6 @@ type UILogin struct {
 	focusIndex int
 	inputs     []textinput.Model
 	text       string
-	cursorMode cursor.Mode
 }
 
 func NewUILogin() UILogin {

@@ -13,12 +13,11 @@ import (
 
 type ListSelectedEntry struct {
 	item list.Item
-	prop property
 }
 
-func SelectListSelectedEntry(id list.Item, prop property) tea.Cmd {
+func SelectListSelectedEntry(id list.Item) tea.Cmd {
 	return func() tea.Msg {
-		return ListSelectedEntry{id, prop}
+		return ListSelectedEntry{id}
 	}
 }
 
@@ -43,21 +42,22 @@ func (bwl BWListItem) Description() string { return bwl.UserName }
 func (bwl BWListItem) FilterValue() string { return bwl.ObjectName }
 
 type UIList struct {
-	list     list.Model
-	selected int
-	bwm      *bw.BWManager
+	list list.Model
+	bwm  *bw.BWManager
 }
 
 func NewUIList(h int, v int, bwm *bw.BWManager) UIList {
 	d := list.NewDefaultDelegate()
-	d.Styles.SelectedTitle = d.Styles.SelectedTitle.Foreground(listSelectedStyle).BorderLeftForeground(listSelectedStyle)
+	d.Styles.SelectedTitle = d.Styles.SelectedTitle.Foreground(selectedColor).BorderLeftForeground(selectedColor)
 	d.Styles.SelectedDesc = d.Styles.SelectedTitle.Copy()
 	width, height := docStyle.GetFrameSize()
 	l := list.New(nil, d, h-width, v-height)
 	l.AdditionalFullHelpKeys = func() []key.Binding {
 		return []key.Binding{
-			listKeys.User,
-			listKeys.Pass,
+			key.NewBinding(
+				key.WithKeys("enter"),
+				key.WithHelp("Enter", "view item"),
+			),
 		}
 	}
 	l.Styles.Title = titleStyle
@@ -99,10 +99,7 @@ func (m UIList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 		if msg.String() == "enter" {
-			return m, SelectListSelectedEntry(m.list.SelectedItem(), copyPassword)
-		}
-		if msg.String() == "alt+enter" {
-			return m, SelectListSelectedEntry(m.list.SelectedItem(), copyUsername)
+			return m, SelectListSelectedEntry(m.list.SelectedItem())
 		}
 	case tea.WindowSizeMsg:
 		m.list.SetSize(msg.Width, msg.Height)
