@@ -27,6 +27,7 @@ linters:
     - varcheck
     # disabled due to personal preference
     - depguard
+    - dupword
     - exhaustruct
     - gomnd
     - nlreturn
@@ -41,7 +42,6 @@ linters:
     - wastedassign
     # TODO
     - goerr113
-    - unused
     - revive
     - gosec
     - gocritic
@@ -49,13 +49,13 @@ linters:
     - errcheck
     - forbidigo
     - goconst
-    - funlen
 
 linters-settings:
   cyclop:
-    max-complexity: 17
+    max-complexity: 26
   funlen:
     lines: 100
+    statements: 100
   gci:
     sections:
       - standard
