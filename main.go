@@ -2,13 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/atotto/clipboard"
-	tea "github.com/charmbracelet/bubbletea"
 	"os"
 	"os/exec"
-)
 
-var bwm BWManager
+	"github.com/atotto/clipboard"
+	tea "github.com/charmbracelet/bubbletea"
+
+	"github.com/sapslaj/gobw/bw"
+	"github.com/sapslaj/gobw/ui"
+)
 
 func main() {
 	cmd := exec.Command("bw", "-v")
@@ -20,8 +22,8 @@ func main() {
 		// TODO: better error message
 		panic("failed to setup clipboard.")
 	}
-	bwm = NewBWManager()
-	m := NewMainModel()
+	bwm := bw.NewBWManager()
+	m := ui.NewMainModel(bwm)
 	if _, err := tea.NewProgram(m, tea.WithAltScreen()).Run(); err != nil {
 		fmt.Println("Error running program:", err)
 		os.Exit(1)

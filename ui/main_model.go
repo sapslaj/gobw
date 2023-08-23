@@ -1,26 +1,14 @@
-package main
+package ui
 
 import (
-	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"golang.org/x/term"
+
+	"github.com/sapslaj/gobw/bw"
 )
 
-var (
-	listSelectedStyle   = lipgloss.Color("4")
-	titleStyle          = lipgloss.NewStyle().Foreground(lipgloss.Color("8")).Background(lipgloss.Color("4"))
-	docStyle            = lipgloss.NewStyle().Margin(1, 2)
-	focusedStyle        = lipgloss.NewStyle().Foreground(lipgloss.Color("4"))
-	blurredStyle        = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
-	cursorStyle         = focusedStyle.Copy()
-	noStyle             = lipgloss.NewStyle()
-	helpStyle           = blurredStyle.Copy()
-	cursorModeHelpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("10"))
-
-	focusedButton = focusedStyle.Copy().Render("[ Submit ]")
-	blurredButton = fmt.Sprintf("[ %s ]", blurredStyle.Render("Submit"))
-)
+// temp global var
+var bwm bw.BWManager
 
 type sessionState int
 
@@ -39,10 +27,11 @@ type MainModel struct {
 	ModelLoading tea.Model
 	ModelList    tea.Model
 	ModelClip    tea.Model
-	bwm          BWManager
+	bwm          bw.BWManager
 }
 
-func NewMainModel() MainModel {
+func NewMainModel(_bwm bw.BWManager) MainModel {
+	bwm = _bwm
 	var initialState sessionState
 	h, v, _ := term.GetSize(0)
 	switch bwm.Status {

@@ -1,4 +1,4 @@
-package main
+package ui
 
 import (
 	"fmt"
@@ -7,6 +7,8 @@ import (
 
 	"github.com/atotto/clipboard"
 	tea "github.com/charmbracelet/bubbletea"
+
+	"github.com/sapslaj/gobw/bw"
 )
 
 type tickMsg time.Time
@@ -42,7 +44,7 @@ func (c UIClip) Init() tea.Cmd {
 func (c UIClip) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case ListSelectedEntry:
-		item, ok := msg.item.(BWListItem)
+		item, ok := msg.item.(bw.BWListItem)
 		if !ok {
 			panic("Could not get BWListItem")
 		}
