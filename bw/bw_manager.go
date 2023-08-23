@@ -6,27 +6,66 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"time"
 )
 
-type BWListLogin struct {
-	UserName string `json:"username"`
-	Password string `json:"password"`
+type ItemType int
+
+const (
+	Login      ItemType = 1
+	SecureNote ItemType = 2
+	Card       ItemType = 3
+	Identity   ItemType = 4
+)
+
+type Status string
+
+const (
+	Unlocked        Status = "unlocked"
+	Locked          Status = "locked"
+	Unauthenticated Status = "unauthenticated"
+)
+
+type ItemLoginURI struct {
+	URI string `json:"uri"`
 }
 
-type BWItem struct {
-	ID         string      `json:"id"`
-	ObjectName string      `json:"name"`
-	Login      BWListLogin `json:"login"`
+type ItemLogin struct {
+	URIs                 []ItemLoginURI `json:"uris"`
+	Username             string         `json:"username"`
+	Password             string         `json:"password"`
+	PasswordRevisionDate time.Time      `json:"passwordRevisionDate"`
+	// TODO: totp
+}
+
+type Item struct {
+	Object         string    `json:"object"` // TODO: enum
+	ID             string    `json:"id"`
+	OrganizationID string    `json:"organizationId"`
+	FolderID       string    `json:"folderId"`
+	Type           ItemType  `json:"type"`
+	Reprompt       int       `json:"reprompt"`
+	Name           string    `json:"name"`
+	Notes          string    `json:"notes"`
+	Favorite       bool      `json:"favorite"`
+	Login          ItemLogin `json:"login"`
+	RevisionDate   time.Time `json:"revisionDate"`
+	CreationDate   time.Time `json:"creationDate"`
+	DeletedDate    time.Time `json:"deletedDate"`
+}
+
+type VaultStatus struct {
+	ServerUrl string `json:"serverUrl"`
+	LastSync  string `json:"lastSync"`
+	UserEmail string `json:"userEmail"`
+	UserId    string `json:"userId"`
+	Status    Status `json:"status"`
 }
 
 type BWManager struct {
-	ServerUrl string `json:"serverUrl"`
-	LastSync  string `json:"lastSync"`
-	UserMail  string `json:"userEmail"`
-	UserId    string `json:"userId"`
-	Status    string `json:"status"`
-	items     []BWItem
-	token     string
+	items       []Item
+	token       string
+	VaultStatus VaultStatus
 }
 
 func NewBWManager() *BWManager {
@@ -37,7 +76,7 @@ func NewBWManager() *BWManager {
 }
 
 func (bwm *BWManager) Login(un string, pw string) error {
-	if bwm.Status != "unauthenticated" {
+	if bwm.VaultStatus.Status != Unauthenticated {
 		fmt.Println("Already Logged in")
 		return nil
 	}
@@ -51,7 +90,7 @@ func (bwm *BWManager) Login(un string, pw string) error {
 }
 
 func (bwm *BWManager) Unlock(pw string) error {
-	if bwm.Status == "unauthenticated" {
+	if bwm.VaultStatus.Status == Unauthenticated {
 		return errors.New("Not Logged in")
 	}
 	out, err := exec.Command("bw", "unlock", pw, "--raw").Output()
@@ -64,7 +103,7 @@ func (bwm *BWManager) Unlock(pw string) error {
 }
 
 func (bwm *BWManager) Logout() error {
-	if bwm.Status == "unauthenticated" {
+	if bwm.VaultStatus.Status == Unauthenticated {
 		return errors.New("Not Logged in")
 	}
 	_, err := exec.Command("bw", "logout").Output()
@@ -81,12 +120,12 @@ func (bwm *BWManager) UpdateStatus() error {
 	if err != nil {
 		return errors.New(err.Error())
 	}
-	json.Unmarshal(out, &bwm)
+	json.Unmarshal(out, &bwm.VaultStatus)
 	return nil
 }
 
 func (bwm *BWManager) UpdateList() error {
-	if bwm.Status == "unauthenticated" {
+	if bwm.VaultStatus.Status == Unauthenticated {
 		fmt.Println("Not Logged In")
 		return errors.New("Not Logged In")
 	}
@@ -100,8 +139,8 @@ func (bwm *BWManager) UpdateList() error {
 	return nil
 }
 
-func (bwm *BWManager) GetList() ([]BWItem, error) {
-	if bwm.Status == "unauthenticated" {
+func (bwm *BWManager) GetList() ([]Item, error) {
+	if bwm.VaultStatus.Status == Unauthenticated {
 		return nil, errors.New("Not Logged In")
 	}
 	return bwm.items, nil

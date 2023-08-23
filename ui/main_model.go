@@ -29,10 +29,10 @@ type MainModel struct {
 func NewMainModel(bwm *bw.BWManager) MainModel {
 	var initialState sessionState
 	h, v, _ := term.GetSize(0)
-	switch bwm.Status {
-	case "unauthenticated":
+	switch bwm.VaultStatus.Status {
+	case bw.Unauthenticated:
 		initialState = viewLogin
-	case "unlocked":
+	case bw.Unlocked:
 		initialState = viewLoading
 	default:
 		initialState = viewUnlock

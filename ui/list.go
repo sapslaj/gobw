@@ -28,11 +28,11 @@ type BWListItem struct {
 	UserName   string
 }
 
-func NewBWListItem(bwi bw.BWItem) BWListItem {
+func NewBWListItem(bwi bw.Item) BWListItem {
 	return BWListItem{
 		ID:         bwi.ID,
-		ObjectName: bwi.ObjectName,
-		UserName:   bwi.Login.UserName,
+		ObjectName: bwi.Name,
+		UserName:   bwi.Login.Username,
 	}
 }
 
@@ -84,7 +84,7 @@ func (m *UIList) GetEntries() {
 		fmt.Println("Error: " + err.Error())
 		os.Exit(1)
 	}
-	m.list.Title = " Bitwarden Vault of: " + m.bwm.UserMail + " "
+	m.list.Title = " Bitwarden Vault of: " + m.bwm.VaultStatus.UserEmail + " "
 	m.list.SetItems(listItems)
 }
 
