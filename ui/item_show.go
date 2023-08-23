@@ -26,16 +26,14 @@ const (
 )
 
 type UIItemShow struct {
-	timer int
-	prop  property
-	bwm   *bw.BWManager
-	item  bw.Item
+	prop property
+	bwm  *bw.BWManager
+	item bw.Item
 }
 
 func NewUIItemShow(bwm *bw.BWManager) tea.Model {
 	return UIItemShow{
-		timer: 10,
-		bwm:   bwm,
+		bwm: bwm,
 	}
 }
 
