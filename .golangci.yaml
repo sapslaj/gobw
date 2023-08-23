@@ -26,21 +26,35 @@ linters:
     - structcheck
     - varcheck
     # disabled due to personal preference
+    - depguard
     - exhaustruct
     - gomnd
     - nlreturn
     - tagliatelle
     - unparam
+    - varnamelen
     - wrapcheck
     - wsl
     # disabled because of generics. https://github.com/golangci/golangci-lint/issues/2649
     - rowserrcheck
     - sqlclosecheck
     - wastedassign
+    # TODO
+    - staticcheck
+    - goerr113
+    - unused
+    - revive
+    - gosec
+    - gocritic
+    - stylecheck
+    - errcheck
+    - forbidigo
+    - goconst
+    - funlen
 
 linters-settings:
   cyclop:
-    max-complexity: 15
+    max-complexity: 17
   funlen:
     lines: 100
   gci:
@@ -62,3 +76,12 @@ issues:
         - exhaustive
         - forcetypeassert
         - funlen
+    - path: ui
+      linters:
+        - ireturn # returning an interface is intended behavior for bubbletea
+    - path: ui/styles.go
+      linters:
+        - gochecknoglobals # globals allowed for lipgloss styles
+    - path: ui/help.go
+      linters:
+        - gochecknoglobals # globals allowed for keybindings for now

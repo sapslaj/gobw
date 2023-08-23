@@ -29,11 +29,13 @@ type UIClip struct {
 	timer  int
 	object string
 	prop   property
+	bwm    *bw.BWManager
 }
 
-func NewUIClip() tea.Model {
+func NewUIClip(bwm *bw.BWManager) tea.Model {
 	return UIClip{
 		timer: 10,
+		bwm:   bwm,
 	}
 }
 
@@ -50,7 +52,7 @@ func (c UIClip) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		switch msg.prop {
 		case copyPassword:
-			data, err := bwm.GetPassword(item.ID)
+			data, err := c.bwm.GetPassword(item.ID)
 			if err != nil {
 				panic("Error getting Password")
 			}
@@ -77,6 +79,7 @@ func (c UIClip) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	return c, cmd
 }
+
 func (c UIClip) View() string {
 	var b strings.Builder
 	var p string

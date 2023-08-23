@@ -7,9 +7,6 @@ import (
 	"github.com/sapslaj/gobw/bw"
 )
 
-// temp global var
-var bwm bw.BWManager
-
 type sessionState int
 
 const (
@@ -27,11 +24,9 @@ type MainModel struct {
 	ModelLoading tea.Model
 	ModelList    tea.Model
 	ModelClip    tea.Model
-	bwm          bw.BWManager
 }
 
-func NewMainModel(_bwm bw.BWManager) MainModel {
-	bwm = _bwm
+func NewMainModel(bwm *bw.BWManager) MainModel {
 	var initialState sessionState
 	h, v, _ := term.GetSize(0)
 	switch bwm.Status {
@@ -46,9 +41,9 @@ func NewMainModel(_bwm bw.BWManager) MainModel {
 		state:        initialState,
 		ModelLogin:   NewUILogin(),
 		ModelUnlock:  NewUIUnlock(),
-		ModelLoading: NewUILoading(),
-		ModelList:    NewUIList(h, v),
-		ModelClip:    NewUIClip(),
+		ModelLoading: NewUILoading(bwm),
+		ModelList:    NewUIList(h, v, bwm),
+		ModelClip:    NewUIClip(bwm),
 	}
 }
 

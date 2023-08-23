@@ -49,11 +49,11 @@ type BWManager struct {
 	token     string
 }
 
-func NewBWManager() BWManager {
+func NewBWManager() *BWManager {
 	var bwm BWManager
 	bwm.token = os.Getenv("BW_SESSION")
 	bwm.UpdateStatus()
-	return bwm
+	return &bwm
 }
 
 func (bwm *BWManager) Login(un string, pw string) error {

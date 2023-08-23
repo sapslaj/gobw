@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
+
+	"github.com/sapslaj/gobw/bw"
 )
 
 type loginType int
@@ -26,8 +28,7 @@ func SelectLoadingFailed(lt loginType) tea.Cmd {
 	}
 }
 
-type LoadingDone struct {
-}
+type LoadingDone struct{}
 
 func SelectLoadingDone() tea.Cmd {
 	return func() tea.Msg {
@@ -36,13 +37,16 @@ func SelectLoadingDone() tea.Cmd {
 }
 
 type UILoading struct {
-	un string
-	pw string
-	lt loginType
+	un  string
+	pw  string
+	lt  loginType
+	bwm *bw.BWManager
 }
 
-func NewUILoading() UILoading {
-	return UILoading{}
+func NewUILoading(bwm *bw.BWManager) UILoading {
+	return UILoading{
+		bwm: bwm,
+	}
 }
 
 func (m UILoading) Init() tea.Cmd {
@@ -52,20 +56,20 @@ func (m UILoading) Init() tea.Cmd {
 func (m UILoading) Login() error {
 	switch m.lt {
 	case login:
-		err := bwm.Login(m.un, m.pw)
+		err := m.bwm.Login(m.un, m.pw)
 		if err != nil {
 			m.un, m.pw = "", ""
 			return errors.New("Login Failed")
 		}
 	case unlock:
-		err := bwm.Unlock(m.pw)
+		err := m.bwm.Unlock(m.pw)
 		if err != nil {
 			m.un, m.pw = "", ""
 			return errors.New("Unlock Failed")
 		}
 	}
 	m.un, m.pw = "", ""
-	bwm.UpdateList()
+	m.bwm.UpdateList()
 	return nil
 }
 

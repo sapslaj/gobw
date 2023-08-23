@@ -2,9 +2,10 @@ package ui
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"strings"
 )
 
 type LoginSubmit struct {
@@ -62,7 +63,6 @@ func (l UILogin) Init() tea.Cmd {
 }
 
 func (l UILogin) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-
 	switch msg := msg.(type) {
 	case LoadingLoginFailed:
 		l.text = "Login Failed. Please try again or press 'esc' to exit"

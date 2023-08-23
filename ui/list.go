@@ -2,10 +2,13 @@ package ui
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"os"
+
+	"github.com/sapslaj/gobw/bw"
 )
 
 type ListSelectedEntry struct {
@@ -22,9 +25,10 @@ func SelectListSelectedEntry(id list.Item, prop property) tea.Cmd {
 type UIList struct {
 	list     list.Model
 	selected int
+	bwm      *bw.BWManager
 }
 
-func NewUIList(h, v int) UIList {
+func NewUIList(h int, v int, bwm *bw.BWManager) UIList {
 	d := list.NewDefaultDelegate()
 	d.Styles.SelectedTitle = d.Styles.SelectedTitle.Foreground(listSelectedStyle).BorderLeftForeground(listSelectedStyle)
 	d.Styles.SelectedDesc = d.Styles.SelectedTitle.Copy()
@@ -38,7 +42,10 @@ func NewUIList(h, v int) UIList {
 	}
 	l.Styles.Title = titleStyle
 
-	return UIList{list: l}
+	return UIList{
+		list: l,
+		bwm:  bwm,
+	}
 }
 
 func (m UIList) Init() tea.Cmd {
@@ -46,14 +53,15 @@ func (m UIList) Init() tea.Cmd {
 }
 
 func (m *UIList) GetEntries() {
-	bwi, err := bwm.GetList()
+	bwi, err := m.bwm.GetList()
 	if err != nil {
 		fmt.Println("Error: " + err.Error())
 		os.Exit(1)
 	}
-	m.list.Title = " Bitwarden Vault of: " + bwm.UserMail + " "
+	m.list.Title = " Bitwarden Vault of: " + m.bwm.UserMail + " "
 	m.list.SetItems(bwi)
 }
+
 func (m UIList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case LoadingDone:
