@@ -58,17 +58,14 @@ func (m UILoading) Login() error {
 	case login:
 		err := m.bwm.Login(m.un, m.pw)
 		if err != nil {
-			m.un, m.pw = "", ""
 			return errors.New("Login Failed")
 		}
 	case unlock:
 		err := m.bwm.Unlock(m.pw)
 		if err != nil {
-			m.un, m.pw = "", ""
 			return errors.New("Unlock Failed")
 		}
 	}
-	m.un, m.pw = "", ""
 	m.bwm.UpdateList()
 	return nil
 }

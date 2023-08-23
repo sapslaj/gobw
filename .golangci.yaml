@@ -40,7 +40,6 @@ linters:
     - sqlclosecheck
     - wastedassign
     # TODO
-    - staticcheck
     - goerr113
     - unused
     - revive
