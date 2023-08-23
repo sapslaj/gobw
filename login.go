@@ -1,36 +1,35 @@
 package main
 
 import (
-    "fmt"
-	"strings"
+	"fmt"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"strings"
 )
 
-
 type LoginSubmit struct {
-    un string
-    pw string
-    lt loginType
+	un string
+	pw string
+	lt loginType
 }
 
-func SelectSubmit(un string,pw string) tea.Cmd {
+func SelectSubmit(un string, pw string) tea.Cmd {
 	return func() tea.Msg {
-		return LoginSubmit{un,pw,login}
+		return LoginSubmit{un, pw, login}
 	}
 }
 
 type UILogin struct {
 	focusIndex int
 	inputs     []textinput.Model
-    text       string
+	text       string
 	cursorMode textinput.CursorMode
 }
 
 func NewUILogin() UILogin {
 	l := UILogin{
 		inputs: make([]textinput.Model, 2),
-        text: "Please enter your Bitwarden Login",
+		text:   "Please enter your Bitwarden Login",
 	}
 
 	var t textinput.Model
@@ -65,8 +64,8 @@ func (l UILogin) Init() tea.Cmd {
 func (l UILogin) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
-    case LoadingLoginFailed:
-        l.text = "Login Failed. Please try again or press 'esc' to exit"
+	case LoadingLoginFailed:
+		l.text = "Login Failed. Please try again or press 'esc' to exit"
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "esc":
@@ -79,7 +78,7 @@ func (l UILogin) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// Did the user press enter while the submit button was focused?
 			// If so, exit.
 			if s == "enter" && l.focusIndex == len(l.inputs) {
-				return l, SelectSubmit(l.inputs[0].Value(),l.inputs[1].Value()) 
+				return l, SelectSubmit(l.inputs[0].Value(), l.inputs[1].Value())
 			}
 
 			// Cycle indexes
@@ -134,10 +133,10 @@ func (l *UILogin) updateInputs(msg tea.Msg) tea.Cmd {
 
 func (l UILogin) View() string {
 	var b strings.Builder
-    b.WriteString(titleStyle.Render(" Bitwarden TUI "))
-    b.WriteString("\n\n")
-    b.WriteString(l.text)
-    b.WriteString("\n\n")
+	b.WriteString(titleStyle.Render(" Bitwarden TUI "))
+	b.WriteString("\n\n")
+	b.WriteString(l.text)
+	b.WriteString("\n\n")
 	for i := range l.inputs {
 		b.WriteString(l.inputs[i].View())
 		if i < len(l.inputs)-1 {
