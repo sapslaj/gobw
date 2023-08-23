@@ -7,6 +7,7 @@ import (
 )
 
 var (
+	logo                = ""
 	listSelectedStyle   = lipgloss.Color("4")
 	titleStyle          = lipgloss.NewStyle().Foreground(lipgloss.Color("8")).Background(lipgloss.Color("4"))
 	docStyle            = lipgloss.NewStyle().Margin(1, 2)

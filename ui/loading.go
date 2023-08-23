@@ -2,6 +2,7 @@ package ui
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -99,7 +100,7 @@ func (m UILoading) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m UILoading) View() string {
 	var b strings.Builder
-	b.WriteString(titleStyle.Render(" Bitwarden TUI "))
+	b.WriteString(titleStyle.Render(fmt.Sprintf(" %s ", logo)))
 	b.WriteString("\n\n Logging in. Please wait\n\n")
 	return docStyle.Render(b.String())
 }

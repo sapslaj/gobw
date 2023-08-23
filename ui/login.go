@@ -134,7 +134,7 @@ func (l *UILogin) updateInputs(msg tea.Msg) tea.Cmd {
 
 func (l UILogin) View() string {
 	var b strings.Builder
-	b.WriteString(titleStyle.Render(" Bitwarden TUI "))
+	b.WriteString(titleStyle.Render(fmt.Sprintf(" %s ", logo)))
 	b.WriteString("\n\n")
 	b.WriteString(l.text)
 	b.WriteString("\n\n")

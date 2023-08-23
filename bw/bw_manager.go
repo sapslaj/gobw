@@ -18,6 +18,21 @@ const (
 	Identity   ItemType = 4
 )
 
+func (it ItemType) String() string {
+	switch it {
+	case Login:
+		return "Login"
+	case SecureNote:
+		return "SecureNote"
+	case Card:
+		return "Card"
+	case Identity:
+		return "Identity"
+	default:
+		panic("undefined item type")
+	}
+}
+
 type Status string
 
 const (
@@ -77,7 +92,6 @@ func NewBWManager() *BWManager {
 
 func (bwm *BWManager) Login(un string, pw string) error {
 	if bwm.VaultStatus.Status != Unauthenticated {
-		fmt.Println("Already Logged in")
 		return nil
 	}
 	out, err := exec.Command("bw", "login", un, pw, "--raw").Output()

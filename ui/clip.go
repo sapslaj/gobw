@@ -26,10 +26,10 @@ const (
 )
 
 type UIClip struct {
-	timer  int
-	object string
-	prop   property
-	bwm    *bw.BWManager
+	timer int
+	prop  property
+	bwm   *bw.BWManager
+	item  bw.Item
 }
 
 func NewUIClip(bwm *bw.BWManager) tea.Model {
@@ -46,13 +46,13 @@ func (c UIClip) Init() tea.Cmd {
 func (c UIClip) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case ListSelectedEntry:
-		item, ok := msg.item.(BWListItem)
+		listItem, ok := msg.item.(BWListItem)
 		if !ok {
 			panic("Could not get BWListItem")
 		}
 		switch msg.prop {
 		case copyPassword:
-			data, err := c.bwm.GetPassword(item.ID)
+			data, err := c.bwm.GetPassword(listItem.ID)
 			if err != nil {
 				panic("Error getting Password")
 			}
@@ -62,14 +62,14 @@ func (c UIClip) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			c.prop = copyPassword
 		case copyUsername:
-			data := item.UserName
+			data := listItem.UserName
 			err := clipboard.WriteAll(data)
 			if err != nil {
 				panic(fmt.Errorf("Error copying username to clipboard: %w", err))
 			}
 			c.prop = copyUsername
 		}
-		c.object = item.ObjectName
+		c.item = listItem.Item
 		return c, tick
 	case tea.KeyMsg:
 		if msg.String() == "q" {
@@ -82,20 +82,26 @@ func (c UIClip) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (c UIClip) View() string {
 	var b strings.Builder
-	var p string
-	b.WriteString(titleStyle.Render(" Bitwarden TUI "))
+	b.WriteString("  ")
+	b.WriteString(titleStyle.Render(fmt.Sprintf(" %s Item | %s", logo, c.item.Name)))
 	b.WriteString("\n\n")
-	b.WriteString("Type: ")
-	switch c.prop {
-	case copyPassword:
-		p = "Password"
-	case copyUsername:
-		p = "Username"
+	b.WriteString(fmt.Sprintf("Object:\t%s\n", focusedStyle.Render(c.item.Object)))
+	b.WriteString(fmt.Sprintf("ID:\t\t%s\n", focusedStyle.Render(c.item.ID)))
+	b.WriteString(fmt.Sprintf("Type:\t\t%s\n", focusedStyle.Render(c.item.Type.String())))
+	if c.item.OrganizationID != "" {
+		b.WriteString(fmt.Sprintf("Organization ID:\t%s\n", focusedStyle.Render(c.item.OrganizationID)))
 	}
-
-	b.WriteString(focusedStyle.Render(p))
+	if c.item.FolderID != "" {
+		b.WriteString(fmt.Sprintf("Folder ID:\t%s\n", focusedStyle.Render(c.item.FolderID)))
+	}
 	b.WriteString("\n")
-	b.WriteString("Object: ")
-	b.WriteString(focusedStyle.Render(c.object))
+	b.WriteString(fmt.Sprintf("Username:\t%s\n", focusedStyle.Render(c.item.Login.Username)))
+	b.WriteString(fmt.Sprintf("Password:\t%s\n", focusedStyle.Render(c.item.Login.Password)))
+	b.WriteString("\nNotes:\n")
+	if c.item.Notes != "" {
+		b.WriteString(c.item.Notes)
+	} else {
+		b.WriteString("-")
+	}
 	return docStyle.Render(b.String())
 }

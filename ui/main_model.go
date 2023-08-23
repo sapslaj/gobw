@@ -34,6 +34,8 @@ func NewMainModel(bwm *bw.BWManager) MainModel {
 		initialState = viewLogin
 	case bw.Unlocked:
 		initialState = viewLoading
+	case bw.Locked:
+		fallthrough
 	default:
 		initialState = viewUnlock
 	}

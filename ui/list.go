@@ -23,6 +23,7 @@ func SelectListSelectedEntry(id list.Item, prop property) tea.Cmd {
 }
 
 type BWListItem struct {
+	Item       bw.Item
 	ID         string
 	ObjectName string
 	UserName   string
@@ -30,6 +31,7 @@ type BWListItem struct {
 
 func NewBWListItem(bwi bw.Item) BWListItem {
 	return BWListItem{
+		Item:       bwi,
 		ID:         bwi.ID,
 		ObjectName: bwi.Name,
 		UserName:   bwi.Login.Username,
@@ -84,7 +86,7 @@ func (m *UIList) GetEntries() {
 		fmt.Println("Error: " + err.Error())
 		os.Exit(1)
 	}
-	m.list.Title = " Bitwarden Vault of: " + m.bwm.VaultStatus.UserEmail + " "
+	m.list.Title = fmt.Sprintf(" %s Vault | %s ", logo, m.bwm.VaultStatus.UserEmail)
 	m.list.SetItems(listItems)
 }
 
