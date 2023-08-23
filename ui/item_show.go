@@ -25,25 +25,25 @@ const (
 	copyPassword
 )
 
-type UIClip struct {
+type UIItemShow struct {
 	timer int
 	prop  property
 	bwm   *bw.BWManager
 	item  bw.Item
 }
 
-func NewUIClip(bwm *bw.BWManager) tea.Model {
-	return UIClip{
+func NewUIItemShow(bwm *bw.BWManager) tea.Model {
+	return UIItemShow{
 		timer: 10,
 		bwm:   bwm,
 	}
 }
 
-func (c UIClip) Init() tea.Cmd {
+func (c UIItemShow) Init() tea.Cmd {
 	return nil
 }
 
-func (c UIClip) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (c UIItemShow) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case ListSelectedEntry:
 		listItem, ok := msg.item.(BWListItem)
@@ -80,7 +80,7 @@ func (c UIClip) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return c, cmd
 }
 
-func (c UIClip) View() string {
+func (c UIItemShow) View() string {
 	var b strings.Builder
 	b.WriteString("  ")
 	b.WriteString(titleStyle.Render(fmt.Sprintf(" %s Item | %s", logo, c.item.Name)))

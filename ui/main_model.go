@@ -14,7 +14,7 @@ const (
 	viewUnlock
 	viewLoading
 	viewList
-	viewClip
+	viewItemShow
 )
 
 type MainModel struct {
@@ -45,7 +45,7 @@ func NewMainModel(bwm *bw.BWManager) MainModel {
 		ModelUnlock:  NewUIUnlock(),
 		ModelLoading: NewUILoading(bwm),
 		ModelList:    NewUIList(h, v, bwm),
-		ModelClip:    NewUIClip(bwm),
+		ModelClip:    NewUIItemShow(bwm),
 	}
 }
 
@@ -66,7 +66,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case LoginSubmit:
 		m.state = viewLoading
 	case ListSelectedEntry:
-		m.state = viewClip
+		m.state = viewItemShow
 	case LoadingDone:
 		m.state = viewList
 	}
@@ -106,9 +106,9 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		m.ModelUnlock = unlock
 		cmd = newCmd
-	case viewClip:
+	case viewItemShow:
 		newClip, newCmd := m.ModelClip.Update(msg)
-		clip, ok := newClip.(UIClip)
+		clip, ok := newClip.(UIItemShow)
 		if !ok {
 			panic("could not perform assertion on Clip model")
 		}
@@ -127,7 +127,7 @@ func (m MainModel) View() string {
 		return m.ModelList.View()
 	case viewLoading:
 		return m.ModelLoading.View()
-	case viewClip:
+	case viewItemShow:
 		return m.ModelClip.View()
 	case viewUnlock:
 		return m.ModelUnlock.View()
