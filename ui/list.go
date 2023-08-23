@@ -22,6 +22,24 @@ func SelectListSelectedEntry(id list.Item, prop property) tea.Cmd {
 	}
 }
 
+type BWListItem struct {
+	ID         string
+	ObjectName string
+	UserName   string
+}
+
+func NewBWListItem(bwi bw.BWItem) BWListItem {
+	return BWListItem{
+		ID:         bwi.ID,
+		ObjectName: bwi.ObjectName,
+		UserName:   bwi.Login.UserName,
+	}
+}
+
+func (bwl BWListItem) Title() string       { return bwl.ObjectName }
+func (bwl BWListItem) Description() string { return bwl.UserName }
+func (bwl BWListItem) FilterValue() string { return bwl.ObjectName }
+
 type UIList struct {
 	list     list.Model
 	selected int
@@ -53,13 +71,21 @@ func (m UIList) Init() tea.Cmd {
 }
 
 func (m *UIList) GetEntries() {
-	bwi, err := m.bwm.GetList()
+	listItems := []list.Item{}
+	items, err := m.bwm.GetList()
+	if err != nil {
+		fmt.Println("Error: " + err.Error())
+		os.Exit(1)
+	}
+	for _, v := range items {
+		listItems = append(listItems, NewBWListItem(v))
+	}
 	if err != nil {
 		fmt.Println("Error: " + err.Error())
 		os.Exit(1)
 	}
 	m.list.Title = " Bitwarden Vault of: " + m.bwm.UserMail + " "
-	m.list.SetItems(bwi)
+	m.list.SetItems(listItems)
 }
 
 func (m UIList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

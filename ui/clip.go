@@ -46,7 +46,7 @@ func (c UIClip) Init() tea.Cmd {
 func (c UIClip) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case ListSelectedEntry:
-		item, ok := msg.item.(bw.BWListItem)
+		item, ok := msg.item.(BWListItem)
 		if !ok {
 			panic("Could not get BWListItem")
 		}

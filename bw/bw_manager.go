@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-
-	"github.com/charmbracelet/bubbles/list"
 )
 
 type BWListLogin struct {
@@ -15,29 +13,11 @@ type BWListLogin struct {
 	Password string `json:"password"`
 }
 
-type BWItems struct {
+type BWItem struct {
 	ID         string      `json:"id"`
 	ObjectName string      `json:"name"`
 	Login      BWListLogin `json:"login"`
 }
-
-func (bwi *BWItems) GetData() BWListItem {
-	var data BWListItem
-	data.ID = bwi.ID
-	data.ObjectName = bwi.ObjectName
-	data.UserName = bwi.Login.UserName
-	return data
-}
-
-type BWListItem struct {
-	ID         string
-	ObjectName string
-	UserName   string
-}
-
-func (bwl BWListItem) Title() string       { return bwl.ObjectName }
-func (bwl BWListItem) Description() string { return bwl.UserName }
-func (bwl BWListItem) FilterValue() string { return bwl.ObjectName }
 
 type BWManager struct {
 	ServerUrl string `json:"serverUrl"`
@@ -45,7 +25,7 @@ type BWManager struct {
 	UserMail  string `json:"userEmail"`
 	UserId    string `json:"userId"`
 	Status    string `json:"status"`
-	items     []BWItems
+	items     []BWItem
 	token     string
 }
 
@@ -120,15 +100,11 @@ func (bwm *BWManager) UpdateList() error {
 	return nil
 }
 
-func (bwm *BWManager) GetList() ([]list.Item, error) {
+func (bwm *BWManager) GetList() ([]BWItem, error) {
 	if bwm.Status == "unauthenticated" {
 		return nil, errors.New("Not Logged In")
 	}
-	data := []list.Item{}
-	for _, v := range bwm.items {
-		data = append(data, v.GetData())
-	}
-	return data, nil
+	return bwm.items, nil
 }
 
 func (bwm *BWManager) GetPassword(id string) (string, error) {
