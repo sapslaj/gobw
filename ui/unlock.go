@@ -14,14 +14,14 @@ func SelectUnlockSubmit(pw string) tea.Cmd {
 	}
 }
 
-type UIUnlock struct {
+type Unlock struct {
 	focusIndex int
 	inputs     []textinput.Model
 	text       string
 }
 
-func NewUIUnlock() UIUnlock {
-	l := UIUnlock{
+func NewUnlock() Unlock {
+	l := Unlock{
 		inputs: make([]textinput.Model, 1),
 		text:   "Please unlock your Bitwarden Vault",
 	}
@@ -33,8 +33,7 @@ func NewUIUnlock() UIUnlock {
 		t.CursorStyle = cursorStyle
 		t.CharLimit = 32
 
-		switch i {
-		case 0:
+		if i == 0 {
 			t.Placeholder = "Password"
 			t.TextStyle = focusedStyle
 			t.EchoMode = textinput.EchoPassword
@@ -47,11 +46,11 @@ func NewUIUnlock() UIUnlock {
 	return l
 }
 
-func (l UIUnlock) Init() tea.Cmd {
+func (l Unlock) Init() tea.Cmd {
 	return textinput.Blink
 }
 
-func (l UIUnlock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (l Unlock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case LoadingLoginFailed:
 		l.text = "Login Failed. Please try again or press 'esc' to exit"
@@ -108,7 +107,7 @@ func (l UIUnlock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return l, cmd
 }
 
-func (l *UIUnlock) updateInputs(msg tea.Msg) tea.Cmd {
+func (l *Unlock) updateInputs(msg tea.Msg) tea.Cmd {
 	cmds := make([]tea.Cmd, len(l.inputs))
 
 	// Only text inputs with Focus() set will respond, so it's safe to simply
@@ -120,7 +119,7 @@ func (l *UIUnlock) updateInputs(msg tea.Msg) tea.Cmd {
 	return tea.Batch(cmds...)
 }
 
-func (l UIUnlock) View() string {
+func (l Unlock) View() string {
 	var b strings.Builder
 	b.WriteString(titleStyle.Render(fmt.Sprintf(" %s ", logo)))
 	b.WriteString("\n\n")

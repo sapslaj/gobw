@@ -20,14 +20,14 @@ func SelectSubmit(un string, pw string) tea.Cmd {
 	}
 }
 
-type UILogin struct {
+type Login struct {
 	focusIndex int
 	inputs     []textinput.Model
 	text       string
 }
 
-func NewUILogin() UILogin {
-	l := UILogin{
+func NewLogin() Login {
+	l := Login{
 		inputs: make([]textinput.Model, 2),
 		text:   "Please enter your Bitwarden Login",
 	}
@@ -57,11 +57,11 @@ func NewUILogin() UILogin {
 	return l
 }
 
-func (l UILogin) Init() tea.Cmd {
+func (l Login) Init() tea.Cmd {
 	return textinput.Blink
 }
 
-func (l UILogin) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (l Login) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case LoadingLoginFailed:
 		l.text = "Login Failed. Please try again or press 'esc' to exit"
@@ -118,7 +118,7 @@ func (l UILogin) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return l, cmd
 }
 
-func (l *UILogin) updateInputs(msg tea.Msg) tea.Cmd {
+func (l *Login) updateInputs(msg tea.Msg) tea.Cmd {
 	cmds := make([]tea.Cmd, len(l.inputs))
 
 	// Only text inputs with Focus() set will respond, so it's safe to simply
@@ -130,7 +130,7 @@ func (l *UILogin) updateInputs(msg tea.Msg) tea.Cmd {
 	return tea.Batch(cmds...)
 }
 
-func (l UILogin) View() string {
+func (l Login) View() string {
 	var b strings.Builder
 	b.WriteString(titleStyle.Render(fmt.Sprintf(" %s ", logo)))
 	b.WriteString("\n\n")

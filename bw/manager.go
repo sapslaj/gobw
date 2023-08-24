@@ -70,101 +70,105 @@ type Item struct {
 }
 
 type VaultStatus struct {
-	ServerUrl string `json:"serverUrl"`
+	ServerURL string `json:"serverUrl"`
 	LastSync  string `json:"lastSync"`
 	UserEmail string `json:"userEmail"`
-	UserId    string `json:"userId"`
+	UserID    string `json:"userId"`
 	Status    Status `json:"status"`
 }
 
-type BWManager struct {
+type Manager struct {
 	items       []Item
 	token       string
 	VaultStatus VaultStatus
 }
 
-func NewBWManager() *BWManager {
-	var bwm BWManager
+var ErrNotLoggedIn = errors.New("not logged in")
+
+func NewBWManager() *Manager {
+	var bwm Manager
 	bwm.token = os.Getenv("BW_SESSION")
-	bwm.UpdateStatus()
 	return &bwm
 }
 
-func (bwm *BWManager) Login(un string, pw string) error {
+func (bwm *Manager) Login(un string, pw string) error {
 	if bwm.VaultStatus.Status != Unauthenticated {
 		return nil
 	}
 	out, err := exec.Command("bw", "login", un, pw, "--raw").Output()
 	if err != nil {
-		return errors.New(err.Error())
+		return fmt.Errorf("failed to login: %w", err)
 	}
-	bwm.UpdateStatus()
-	(*bwm).token = string(out)
+	bwm.token = string(out)
+	err = bwm.UpdateStatus()
+	if err != nil {
+		return fmt.Errorf("failed to login: %w", err)
+	}
 	return nil
 }
 
-func (bwm *BWManager) Unlock(pw string) error {
+func (bwm *Manager) Unlock(pw string) error {
 	if bwm.VaultStatus.Status == Unauthenticated {
-		return errors.New("Not Logged in")
+		return ErrNotLoggedIn
 	}
 	out, err := exec.Command("bw", "unlock", pw, "--raw").Output()
 	if err != nil {
-		return errors.New(err.Error())
+		return fmt.Errorf("failed to unlock: %w", err)
 	}
-	bwm.UpdateStatus()
-	(*bwm).token = string(out)
+	bwm.token = string(out)
+	err = bwm.UpdateStatus()
+	if err != nil {
+		return fmt.Errorf("failed to unlock: %w", err)
+	}
 	return nil
 }
 
-func (bwm *BWManager) Logout() error {
+func (bwm *Manager) Logout() error {
 	if bwm.VaultStatus.Status == Unauthenticated {
-		return errors.New("Not Logged in")
+		return ErrNotLoggedIn
 	}
 	_, err := exec.Command("bw", "logout").Output()
 	if err != nil {
-		return errors.New(err.Error())
+		return fmt.Errorf("failed to logout: %w", err)
 	}
-	(*bwm).token = ""
-	bwm.UpdateStatus()
+	bwm.token = ""
+	err = bwm.UpdateStatus()
+	if err != nil {
+		return fmt.Errorf("failed to logout: %w", err)
+	}
 	return nil
 }
 
-func (bwm *BWManager) UpdateStatus() error {
+func (bwm *Manager) UpdateStatus() error {
 	out, err := exec.Command("bw", "status").Output()
 	if err != nil {
-		return errors.New(err.Error())
+		return fmt.Errorf("failed to update status: %w", err)
 	}
-	json.Unmarshal(out, &bwm.VaultStatus)
-	return nil
-}
-
-func (bwm *BWManager) UpdateList() error {
-	if bwm.VaultStatus.Status == Unauthenticated {
-		fmt.Println("Not Logged In")
-		return errors.New("Not Logged In")
-	}
-	out, err := exec.Command("bw", "list", "items", "--session", bwm.token).Output()
+	err = json.Unmarshal(out, &bwm.VaultStatus)
 	if err != nil {
-		fmt.Println("Error: " + err.Error())
-		return errors.New(err.Error())
+		return fmt.Errorf("failed to update status: %w", err)
 	}
-	json.Unmarshal(out, &bwm.items)
-
 	return nil
 }
 
-func (bwm *BWManager) GetList() ([]Item, error) {
+func (bwm *Manager) UpdateList() error {
 	if bwm.VaultStatus.Status == Unauthenticated {
-		return nil, errors.New("Not Logged In")
+		return ErrNotLoggedIn
+	}
+	out, err := exec.Command("bw", "list", "items", "--session", bwm.token).Output() // #nosec G204
+	if err != nil {
+		return fmt.Errorf("failed to update list: %w", err)
+	}
+	err = json.Unmarshal(out, &bwm.items)
+	if err != nil {
+		return fmt.Errorf("failed to update list: %w", err)
+	}
+	return nil
+}
+
+func (bwm *Manager) GetList() ([]Item, error) {
+	if bwm.VaultStatus.Status == Unauthenticated {
+		return nil, ErrNotLoggedIn
 	}
 	return bwm.items, nil
-}
-
-func (bwm *BWManager) GetPassword(id string) (string, error) {
-	for _, v := range bwm.items {
-		if v.ID == id {
-			return v.Login.Password, nil
-		}
-	}
-	return "", errors.New("No entry matching ID found.")
 }

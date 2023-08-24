@@ -41,13 +41,6 @@ linters:
     - sqlclosecheck
     - wastedassign
     # TODO
-    - goerr113
-    - revive
-    - gosec
-    - gocritic
-    - stylecheck
-    - errcheck
-    - forbidigo
     - goconst
 
 linters-settings:
@@ -81,6 +74,6 @@ issues:
     - path: ui/styles.go
       linters:
         - gochecknoglobals # globals allowed for lipgloss styles
-    - path: ui/help.go
+    - path: main\.go
       linters:
-        - gochecknoglobals # globals allowed for keybindings for now
+        - forbidigo

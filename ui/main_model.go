@@ -26,7 +26,7 @@ type MainModel struct {
 	ModelClip    tea.Model
 }
 
-func NewMainModel(bwm *bw.BWManager) MainModel {
+func NewMainModel(bwm *bw.Manager) MainModel {
 	var initialState sessionState
 	h, v, _ := term.GetSize(0)
 	switch bwm.VaultStatus.Status {
@@ -41,11 +41,11 @@ func NewMainModel(bwm *bw.BWManager) MainModel {
 	}
 	return MainModel{
 		state:        initialState,
-		ModelLogin:   NewUILogin(),
-		ModelUnlock:  NewUIUnlock(),
-		ModelLoading: NewUILoading(bwm),
-		ModelList:    NewUIList(h, v, bwm),
-		ModelClip:    NewUIItemShow(bwm),
+		ModelLogin:   NewLogin(),
+		ModelUnlock:  NewUnlock(),
+		ModelLoading: NewLoading(bwm),
+		ModelList:    NewList(h, v, bwm),
+		ModelClip:    NewItemShow(bwm),
 	}
 }
 
@@ -76,7 +76,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		size := tea.WindowSizeMsg{Height: h, Width: v}
 		m.ModelList.Update(size)
 		newList, newCmd := m.ModelList.Update(msg)
-		list, ok := newList.(UIList)
+		list, ok := newList.(List)
 		if !ok {
 			panic("could not perform assertion on List model")
 		}
@@ -84,7 +84,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmd = newCmd
 	case viewLoading:
 		newLoading, newCmd := m.ModelLoading.Update(msg)
-		loading, ok := newLoading.(UILoading)
+		loading, ok := newLoading.(Loading)
 		if !ok {
 			panic("could not perform assertion on Loading model")
 		}
@@ -92,7 +92,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmd = newCmd
 	case viewLogin:
 		newLogin, newCmd := m.ModelLogin.Update(msg)
-		login, ok := newLogin.(UILogin)
+		login, ok := newLogin.(Login)
 		if !ok {
 			panic("could not perform assertion on Login model")
 		}
@@ -100,7 +100,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmd = newCmd
 	case viewUnlock:
 		newUnlock, newCmd := m.ModelUnlock.Update(msg)
-		unlock, ok := newUnlock.(UIUnlock)
+		unlock, ok := newUnlock.(Unlock)
 		if !ok {
 			panic("could not perform assertion on Unlock model")
 		}
@@ -108,7 +108,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmd = newCmd
 	case viewItemShow:
 		newClip, newCmd := m.ModelClip.Update(msg)
-		clip, ok := newClip.(UIItemShow)
+		clip, ok := newClip.(ItemShow)
 		if !ok {
 			panic("could not perform assertion on Clip model")
 		}

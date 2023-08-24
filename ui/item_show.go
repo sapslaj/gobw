@@ -22,7 +22,7 @@ func tick() tea.Msg {
 	return tickMsg{}
 }
 
-type uiItemShowKeyBindings struct {
+type itemShowKeyBindings struct {
 	CursorUp     key.Binding
 	CursorDown   key.Binding
 	Copy         key.Binding
@@ -31,8 +31,8 @@ type uiItemShowKeyBindings struct {
 	Quit         key.Binding
 }
 
-func newUIItemShowKeyBindings() uiItemShowKeyBindings {
-	return uiItemShowKeyBindings{
+func newItemShowKeyBindings() itemShowKeyBindings {
+	return itemShowKeyBindings{
 		CursorUp: key.NewBinding(
 			key.WithKeys("up", "k"),
 			key.WithHelp("↑/k", "up"),
@@ -60,43 +60,43 @@ func newUIItemShowKeyBindings() uiItemShowKeyBindings {
 	}
 }
 
-func (k uiItemShowKeyBindings) ShortHelp() []key.Binding {
+func (k itemShowKeyBindings) ShortHelp() []key.Binding {
 	return []key.Binding{k.CursorUp, k.CursorDown, k.Copy, k.CopyUsername, k.CopyPassword, k.Quit}
 }
 
-func (k uiItemShowKeyBindings) FullHelp() [][]key.Binding {
+func (k itemShowKeyBindings) FullHelp() [][]key.Binding {
 	return [][]key.Binding{}
 }
 
-type UIItemShow struct {
-	bwm        *bw.BWManager
+type ItemShow struct {
+	bwm        *bw.Manager
 	item       bw.Item
 	selected   int
-	keys       uiItemShowKeyBindings
+	keys       itemShowKeyBindings
 	help       help.Model
 	flashMsg   string
 	flashTimer timer.Model
 }
 
-func NewUIItemShow(bwm *bw.BWManager) tea.Model {
-	return UIItemShow{
+func NewItemShow(bwm *bw.Manager) tea.Model {
+	return ItemShow{
 		bwm:  bwm,
-		keys: newUIItemShowKeyBindings(),
+		keys: newItemShowKeyBindings(),
 		help: help.New(),
 	}
 }
 
-func (c UIItemShow) Init() tea.Cmd {
+func (c ItemShow) Init() tea.Cmd {
 	return c.flashTimer.Init()
 }
 
-func (c UIItemShow) flash(msg string) (tea.Model, tea.Cmd) {
+func (c ItemShow) flash(msg string) (tea.Model, tea.Cmd) {
 	c.flashMsg = msg
 	c.flashTimer = timer.NewWithInterval(5*time.Second, time.Second)
 	return c, c.flashTimer.Start()
 }
 
-func (c UIItemShow) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (c ItemShow) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case timer.TickMsg:
 		var cmd tea.Cmd
@@ -120,12 +120,12 @@ func (c UIItemShow) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, c.keys.Quit):
 			return c, SelectLoadingDone()
 		case key.Matches(msg, c.keys.CursorUp):
-			c.selected -= 1
+			c.selected--
 			if c.selected < 0 {
 				c.selected = 0
 			}
 		case key.Matches(msg, c.keys.CursorDown):
-			c.selected += 1
+			c.selected++
 			if c.selected > 7 {
 				c.selected = 7
 			}
@@ -172,7 +172,7 @@ func (c UIItemShow) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return c, cmd
 }
 
-func (c UIItemShow) renderRow(i int, label string, value string, hidden bool) string {
+func (c ItemShow) renderRow(i int, label string, value string, hidden bool) string {
 	// this is a bad way to do this but will fix later
 	if hidden && i != c.selected && len(value) > 0 {
 		value = "•••"
@@ -194,7 +194,7 @@ func (c UIItemShow) renderRow(i int, label string, value string, hidden bool) st
 	return rowStyle.Render(row) + "\n"
 }
 
-func (c UIItemShow) View() string {
+func (c ItemShow) View() string {
 	sections := make([]string, 2)
 	var b strings.Builder
 	b.WriteString("  ")

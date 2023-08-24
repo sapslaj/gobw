@@ -2,7 +2,6 @@ package ui
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
@@ -41,12 +40,12 @@ func (bwl BWListItem) Title() string       { return bwl.ObjectName }
 func (bwl BWListItem) Description() string { return bwl.UserName }
 func (bwl BWListItem) FilterValue() string { return bwl.ObjectName }
 
-type UIList struct {
+type List struct {
 	list list.Model
-	bwm  *bw.BWManager
+	bwm  *bw.Manager
 }
 
-func NewUIList(h int, v int, bwm *bw.BWManager) UIList {
+func NewList(h int, v int, bwm *bw.Manager) List {
 	d := list.NewDefaultDelegate()
 	d.Styles.SelectedTitle = d.Styles.SelectedTitle.Foreground(selectedColor).BorderLeftForeground(selectedColor)
 	d.Styles.SelectedDesc = d.Styles.SelectedTitle.Copy()
@@ -62,35 +61,30 @@ func NewUIList(h int, v int, bwm *bw.BWManager) UIList {
 	}
 	l.Styles.Title = titleStyle
 
-	return UIList{
+	return List{
 		list: l,
 		bwm:  bwm,
 	}
 }
 
-func (m UIList) Init() tea.Cmd {
+func (m List) Init() tea.Cmd {
 	return nil
 }
 
-func (m *UIList) GetEntries() {
+func (m *List) GetEntries() {
 	listItems := []list.Item{}
 	items, err := m.bwm.GetList()
 	if err != nil {
-		fmt.Println("Error: " + err.Error())
-		os.Exit(1)
+		panic(err)
 	}
 	for _, v := range items {
 		listItems = append(listItems, NewBWListItem(v))
-	}
-	if err != nil {
-		fmt.Println("Error: " + err.Error())
-		os.Exit(1)
 	}
 	m.list.Title = fmt.Sprintf(" %s Vault | %s ", logo, m.bwm.VaultStatus.UserEmail)
 	m.list.SetItems(listItems)
 }
 
-func (m UIList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m List) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case LoadingDone:
 		m.GetEntries()
@@ -110,6 +104,6 @@ func (m UIList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m UIList) View() string {
+func (m List) View() string {
 	return docStyle.Render(m.list.View())
 }

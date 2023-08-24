@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -16,8 +15,6 @@ const (
 	login loginType = iota
 	unlock
 )
-
-type errMsg error
 
 type LoadingLoginFailed struct {
 	lt loginType
@@ -37,41 +34,42 @@ func SelectLoadingDone() tea.Cmd {
 	}
 }
 
-type UILoading struct {
+type Loading struct {
 	un  string
 	pw  string
 	lt  loginType
-	bwm *bw.BWManager
+	bwm *bw.Manager
 }
 
-func NewUILoading(bwm *bw.BWManager) UILoading {
-	return UILoading{
+func NewLoading(bwm *bw.Manager) Loading {
+	return Loading{
 		bwm: bwm,
 	}
 }
 
-func (m UILoading) Init() tea.Cmd {
+func (m Loading) Init() tea.Cmd {
 	return nil
 }
 
-func (m UILoading) Login() error {
+func (m Loading) Login() error {
+	var err error
 	switch m.lt {
 	case login:
 		err := m.bwm.Login(m.un, m.pw)
 		if err != nil {
-			return errors.New("Login Failed")
+			return err
 		}
 	case unlock:
 		err := m.bwm.Unlock(m.pw)
 		if err != nil {
-			return errors.New("Unlock Failed")
+			return err
 		}
 	}
-	m.bwm.UpdateList()
-	return nil
+	err = m.bwm.UpdateList()
+	return err
 }
 
-func (m UILoading) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Loading) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case LoginSubmit:
 		m.un = msg.un
@@ -85,10 +83,6 @@ func (m UILoading) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		default:
 			return m, nil
 		}
-
-	case errMsg:
-		return m, tea.Quit
-
 	default:
 		err := m.Login()
 		if err != nil {
@@ -98,7 +92,7 @@ func (m UILoading) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 }
 
-func (m UILoading) View() string {
+func (m Loading) View() string {
 	var b strings.Builder
 	b.WriteString(titleStyle.Render(fmt.Sprintf(" %s ", logo)))
 	b.WriteString("\n\n Logging in. Please wait\n\n")
