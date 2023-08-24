@@ -57,6 +57,8 @@ linters-settings:
       - blank
       - dot
     custom-order: true
+  nestif:
+    min-complexity: 8
 
 issues:
   exclude:
