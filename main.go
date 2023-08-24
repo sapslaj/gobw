@@ -23,6 +23,10 @@ func main() {
 		panic("failed to setup clipboard.")
 	}
 	bwm := bw.NewBWManager()
+	if err := bwm.UpdateStatus(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 	m := ui.NewMainModel(bwm)
 	if _, err := tea.NewProgram(m, tea.WithAltScreen()).Run(); err != nil {
 		fmt.Println("Error running program:", err)
