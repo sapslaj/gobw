@@ -154,6 +154,11 @@ func (c ItemShow) setItem(listItem BWListItem) tea.Model {
 	c.item = listItem.Item
 	c.rows = make([]itemShowRow, 0)
 	c.rows = append(c.rows, itemShowRow{
+		label:     "Item Name",
+		value:     c.item.Name,
+		marginTop: 1,
+	})
+	c.rows = append(c.rows, itemShowRow{
 		label:     "Object",
 		value:     c.item.Object,
 		marginTop: 1,
